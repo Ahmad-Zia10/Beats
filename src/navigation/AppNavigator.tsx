@@ -9,7 +9,7 @@ import { SettingsScreen } from "../screens/SettingsScreen";
 import { PlayerScreen } from "../screens/PlayerScreen";
 import { FavoritesScreen } from "../screens/FavoritesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
-
+import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { COLORS, FONTS } from "../themes";
 
 const Stack = createNativeStackNavigator();
@@ -22,6 +22,11 @@ const TAB_ICONS: Record<string, string> = {
   Settings:  '⚙',
 };
 
+function AudioInit() {
+  useAudioPlayer();
+  return null;
+}
+
 function TabNavigator() {
   return (
     <Tab.Navigator
@@ -30,10 +35,7 @@ function TabNavigator() {
         tabBarStyle: {
           backgroundColor: COLORS.tabBar,
           borderTopColor: COLORS.tabBarBorder,
-          borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 10,
-          paddingTop: 8,
+          borderTopWidth: 1
         },
         tabBarActiveTintColor: COLORS.tabActive,
         tabBarInactiveTintColor: COLORS.tabInactive,
@@ -62,6 +64,7 @@ function TabNavigator() {
 export function AppNavigator() {
   return (
     <NavigationContainer>
+      <AudioInit/>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
 
         {/* MainTabs is the root — shows the bottom tab bar */}
