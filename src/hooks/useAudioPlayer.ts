@@ -17,16 +17,18 @@ export const useAudioPlayer = () => {
   const setDuration = usePlayerStore((s) => s.setDuration);
   const setIsPlaying = usePlayerStore((s) => s.setIsPlaying);
   const playNext = usePlayerStore((s) => s.playNext);
+  const isSeekingRef = useRef(false);
 
   // ── Unload the current sound ──────────────────────────────────────────────
   const unloadSound = useCallback(async () => {
     if (soundRef.current) {
+      await soundRef.current.stopAsync(); 
       await soundRef.current.unloadAsync();
       soundRef.current = null;
     }
   }, []);
 
-  // ── Load and play a new song ──────────────────────────────────────────────
+  // ── Load and play a new song 
   const loadAndPlay = useCallback(
     async (song: typeof currentSong) => {
       if (!song) return;
@@ -38,7 +40,7 @@ export const useAudioPlayer = () => {
       if (!url) return;
 
       try {
-        // ── This is what enables background playback ──────────────────────
+        // ── This is what enables background playback 
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           staysActiveInBackground: true,  // keep playing when app minimised
@@ -47,16 +49,18 @@ export const useAudioPlayer = () => {
           playThroughEarpieceAndroid: false,
         });
 
-        // ── Create the Sound object and start playing ─────────────────────
+        // ── Create the Sound object and start playing
         const { sound } = await Audio.Sound.createAsync(
           { uri: url },
-          { shouldPlay: true, progressUpdateIntervalMillis: 500 },
+          { shouldPlay: usePlayerStore.getState().isPlaying, progressUpdateIntervalMillis: 500 },
           // This callback fires every 500ms with playback status
           (status: AVPlaybackStatus) => {
             if (!status.isLoaded) return;
 
             // update position in store every 500ms
-            setPosition(status.positionMillis / 1000);
+            if (!isSeekingRef.current) {
+              setPosition(status.positionMillis / 1000);
+            }
 
             // update duration when we know it
             if (status.durationMillis) {
@@ -75,7 +79,6 @@ export const useAudioPlayer = () => {
         );
 
         soundRef.current = sound;
-        setIsPlaying(true);
       } catch (error) {
         console.error('Audio load error:', error);
       }
@@ -83,7 +86,7 @@ export const useAudioPlayer = () => {
     [unloadSound, setPosition, setDuration, setIsPlaying, playNext, repeatMode]
   );
 
-  // ── When currentSong changes — load the new song ──────────────────────────
+  // ── When currentSong changes — load the new song 
   // Watch currentSong?.id not currentSong object
   // because object reference changes on every render
   // but id only changes when it's actually a different song
@@ -93,7 +96,7 @@ export const useAudioPlayer = () => {
     }
   }, [currentSong?.id]);
 
-  // ── When isPlaying changes — pause or resume ──────────────────────────────
+  // ── When isPlaying changes — pause or resume 
   useEffect(() => {
     const sound = soundRef.current;
     if (!sound) return;
@@ -105,12 +108,14 @@ export const useAudioPlayer = () => {
     }
   }, [isPlaying]);
 
-  // ── Seek to a specific position ───────────────────────────────────────────
+  // ── Seek to a specific position 
   const seek = useCallback(
     async (seconds: number) => {
       if (soundRef.current) {
+        isSeekingRef.current = true;
         await soundRef.current.setPositionAsync(seconds * 1000);
         setPosition(seconds);
+        isSeekingRef.current = false;
       }
     },
     [setPosition]
