@@ -41,6 +41,8 @@ interface PlayerStore {
   removeDownload: (id: string) => void;
   addDownloadingId: (id: string) => void;
   removeDownloadingId: (id: string) => void;
+  seekFn: ((seconds: number) => Promise<void>) | null;
+  setSeekFn: (fn: (seconds: number) => Promise<void>) => void;
 }
 
 export const usePlayerStore = create<PlayerStore>()(
@@ -51,6 +53,7 @@ export const usePlayerStore = create<PlayerStore>()(
       queue: [],
       currentIndex: -1,
       isPlaying: false,
+      seekFn: null,
       position: 0,
       duration: 0,
       repeatMode: 'none',
@@ -151,6 +154,7 @@ export const usePlayerStore = create<PlayerStore>()(
       setPosition: (position) => set({ position }),
       setDuration: (duration) => set({ duration }),
       setIsPlaying: (isPlaying) => set({ isPlaying }),
+      setSeekFn: (fn) => set({ seekFn: fn }),
 
       // ── Repeat mode ─────────────────────────────────────────────────────
       setRepeatMode: (repeatMode) => set({ repeatMode }),
@@ -257,6 +261,11 @@ export const usePlayerStore = create<PlayerStore>()(
         isShuffled: state.isShuffled,
         downloadedSongs: state.downloadedSongs,
       }),
+
+      // Ensure isPlaying is never true after a cold start
+      onRehydrateStorage: () => (state) => {
+        if (state) state.isPlaying = false;
+      },
     }
   )
 );
