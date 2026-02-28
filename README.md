@@ -11,7 +11,7 @@
 
 &nbsp;
 
-📱 **[Download APK](https://your-eas-link)**  &nbsp;·&nbsp;  🎥 **[Watch Demo](https://your-video-link)**  &nbsp;·&nbsp;  ⭐ **Star this repo if you found it useful**
+📱 **[Download APK]([https://your-eas-link](https://expo.dev/accounts/zia10s-organization/projects/music-player/builds/78b7caa1-eeba-45d9-ba3c-ccfb5f55b7d7))**  &nbsp;·&nbsp;  🎥 **[Watch Demo](https://www.loom.com/share/cf6dc8c18c78449da2203d19359fe161)**  &nbsp;·&nbsp;  ⭐ **Star this repo if you found it useful**
 
 ---
 
